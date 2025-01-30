@@ -82,16 +82,40 @@ document.addEventListener('DOMContentLoaded', function() {
         levelSpan.textContent = difficultySelect.options[difficultySelect.selectedIndex].text;
     }
 
+    function updateTypingFeedback() {
+        const sampleText = sampleTextDiv.textContent.trim();
+        const userText = userInput.value.trim();
+        const sampleWords = sampleText.split(/\s+/);
+        const userWords = userText.split(/\s+/);
+
+        let feedbackHTML = '';
+
+        for (let i = 0; i < sampleWords.length; i++) {
+            if (i < userWords.length) {
+                if (userWords[i] === sampleWords[i]) {
+                    feedbackHTML += `<span style="color: blue;">${sampleWords[i]}</span> `;
+                } else {
+                    feedbackHTML += `<span style="color: red;">${sampleWords[i]}</span> `;
+                }
+            } else {
+                feedbackHTML += `<span>${sampleWords[i]}</span> `;
+            }
+        }
+
+        sampleTextDiv.innerHTML = feedbackHTML.trim();
+    }
+
     difficultySelect.addEventListener('change', updateSampleText);
     startBtn.addEventListener('click', startTest);
     stopBtn.addEventListener('click', stopTest);
-    
-// inserted the function to stop the test when the enter key is pressed
+
     userInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             stopTest();
         }
     });
+
+    userInput.addEventListener('input', updateTypingFeedback);
 
     // Initialize with a random text from the default difficulty level
     updateSampleText();
