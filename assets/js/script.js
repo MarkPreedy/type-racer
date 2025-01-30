@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const difficultySelect = document.getElementById('difficulty');
     const sampleTextDiv = document.getElementById('sample-text');
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const userInput = document.getElementById('user-input');
+    const timeSpan = document.getElementById('time');
+    const wpmSpan = document.getElementById('wpm');
+    const levelSpan = document.getElementById('level');
+
+    let startTime, endTime;
 
     function getRandomText(textArray) {
         const randomIndex = Math.floor(Math.random() * textArray.length);
@@ -40,7 +48,50 @@ document.addEventListener('DOMContentLoaded', function() {
         sampleTextDiv.textContent = selectedText;
     }
 
+    function startTest() {
+        startTime = new Date();
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        userInput.disabled = false;
+        userInput.value = '';
+        userInput.focus();
+    }
+
+    function stopTest() {
+        endTime = new Date();
+        const timeTaken = (endTime - startTime) / 1000;
+        timeSpan.textContent = timeTaken.toFixed(2);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        userInput.disabled = true;
+
+        const sampleText = sampleTextDiv.textContent.trim();
+        const userText = userInput.value.trim();
+        const sampleWords = sampleText.split(/\s+/);
+        const userWords = userText.split(/\s+/);
+        let correctWords = 0;
+
+        for (let i = 0; i < userWords.length; i++) {
+            if (userWords[i] === sampleWords[i]) {
+                correctWords++;
+            }
+        }
+
+        const wpm = Math.round((correctWords / timeTaken) * 60);
+        wpmSpan.textContent = wpm;
+        levelSpan.textContent = difficultySelect.options[difficultySelect.selectedIndex].text;
+    }
+
     difficultySelect.addEventListener('change', updateSampleText);
+    startBtn.addEventListener('click', startTest);
+    stopBtn.addEventListener('click', stopTest);
+    
+// inserted the function to stop the test when the enter key is pressed
+    userInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            stopTest();
+        }
+    });
 
     // Initialize with a random text from the default difficulty level
     updateSampleText();
